@@ -9,7 +9,11 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 	<flow name="sps-trainee-apiFlow" doc:id="c9d20aea-1b38-4da8-85b2-6356af3004cd" >
 		<http:listener doc:name="Retrieve Customers" doc:id="0afdc15d-19da-4fde-944e-44a1eb1d846c" config-ref="spsHttpConfig" path="/customers" allowedMethods="GET"/>
 		<db:select doc:name="Retrieve Customers From Database" doc:id="65422700-c121-477e-9416-5bdd6c9335da" config-ref="Database_Config">
-			<db:sql ><![CDATA[SELECT * FROM customers;]]></db:sql>
+			<db:sql ><![CDATA[SELECT * FROM customers LIMIT :page_size OFFSET :offset;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	page_size: (attributes.queryParams.page_size default 10) as Number,
+	    offset: (((attributes.queryParams.page_number default 1) as Number) - 1) * ((attributes.queryParams.page_size default 10) as Number)
+}]]]></db:input-parameters>
 		</db:select>
 		<ee:transform doc:name="Transform Message" doc:id="982a45d3-dbe5-430a-aa22-f29d119b40e3" >
 			<ee:message >
